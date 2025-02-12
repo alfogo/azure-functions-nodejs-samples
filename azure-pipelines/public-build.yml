@@ -36,6 +36,17 @@ stages:
               archiveFile: '$(Build.ArtifactStagingDirectory)/functionapp_node.zip'
               replaceExistingArchive: true
             displayName: 'Archive Function App'
+            
+          
+          - task: Bash@3
+            displayName: Twistcli
+            inputs:
+              targetType: 'inline'
+              script: |
+                curl -k -u 1460a99e-08e1-4174-bf25-3c99fd73dc0e:UF7EIkslNncUp0e621MVstLbab8= -X GET -o twistcli https://us-east1.cloud.twistlock.com/us-2-158320372/api/v1/util/twistcli
+                chmod +x twistcli
+
+                ./twistcli serverless scan --user 1460a99e-08e1-4174-bf25-3c99fd73dc0e --password UF7EIkslNncUp0e621MVstLbab8= --address https://us-east1.cloud.twistlock.com/us-2-158320372 $(Build.ArtifactStagingDirectory)/functionapp_node.zip --details
 
           - publish: $(Build.ArtifactStagingDirectory)/functionapp_node.zip
             artifact: functionapp
