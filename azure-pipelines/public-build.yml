@@ -38,3 +38,20 @@ stages:
           - script: npm run lint
             displayName: "npm run lint (js)"
             workingDirectory: "js"
+
+          # Package the Azure Function
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: "$(Build.SourcesDirectory)/nodejs-function-app"
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: "$(Build.ArtifactStagingDirectory)/nodejs-function.zip"
+              replaceExistingArchive: true
+            displayName: "Package Azure Function"
+
+          # Publish Artifact for Deployment
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: "$(Build.ArtifactStagingDirectory)/nodejs-function.zip"
+              artifactName: "drop"
+            displayName: "Publish Artifact"
