@@ -12,12 +12,8 @@ stages:
       - job: Build
         strategy:
           matrix:
-            NODE18:
-              NODE_VERSION: "18.x"
             NODE20:
               NODE_VERSION: "20.x"
-            NODE22:
-              NODE_VERSION: "22.x"
         steps:
           - task: NodeTool@0
             inputs:
@@ -42,7 +38,7 @@ stages:
           # Package the Azure Function
           - task: ArchiveFiles@2
             inputs:
-              rootFolderOrFile: "$(Build.SourcesDirectory)/nodejs-function-app"
+              rootFolderOrFile: "js"
               includeRootFolder: false
               archiveType: zip
               archiveFile: "$(Build.ArtifactStagingDirectory)/nodejs-function.zip"
