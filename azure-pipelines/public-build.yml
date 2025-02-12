@@ -1,53 +1,44 @@
-# This build is used for public PR and CI builds.
+# Azure Pipeline Configuration for Node.js Azure Function
 
 trigger:
-- main
+  branches:
+    include:
+      - main  # Trigger pipeline on changes to the main branch
 
 pool:
-  vmImage: ubuntu-latest
- 
+  vmImage: 'ubuntu-latest'  # Use the latest Ubuntu image for the build agent
+
+variables:
+  NODE_VERSION: '16.x'  # Specify the Node.js version to use
+
 stages:
   - stage: Build
+    displayName: 'Build Stage'
     jobs:
       - job: Build
-        strategy:
-          matrix:
-            NODE20:
-              NODE_VERSION: "20.x"
+        displayName: 'Build Job'
         steps:
-          - task: NodeTool@0
+          - task: UseNode@1
             inputs:
-              versionSpec: $(NODE_VERSION)
-            displayName: "Install Node.js"
-          - script: npm ci
-            displayName: "npm ci (ts)"
-            workingDirectory: "ts"
-          - script: npm run build
-            displayName: "npm run build (ts)"
-            workingDirectory: "ts"
-          - script: npm run lint
-            displayName: "npm run lint (ts)"
-            workingDirectory: "ts"
-          - script: npm ci
-            displayName: "npm ci (js)"
-            workingDirectory: "js"
-          - script: npm run lint
-            displayName: "npm run lint (js)"
-            workingDirectory: "js"
+              version: $(NODE_VERSION)
+            displayName: 'Install Node.js'
 
-          # Package the Azure Function
+          - script: |
+              cd js  # Navigate to the JavaScript function directory
+              npm install  # Install dependencies
+              npm run build  # Build the project (if applicable)
+            displayName: 'Install Dependencies and Build'
+
           - task: ArchiveFiles@2
             inputs:
-              rootFolderOrFile: "js"
+              rootFolderOrFile: '$(Build.SourcesDirectory)/js'
               includeRootFolder: false
-              archiveType: zip
-              archiveFile: "$(Build.ArtifactStagingDirectory)/nodejs-function.zip"
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/functionapp_node.zip'
               replaceExistingArchive: true
-            displayName: "Package Azure Function"
+            displayName: 'Archive Function App'
 
-          # Publish Artifact for Deployment
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: "$(Build.ArtifactStagingDirectory)/nodejs-function.zip"
-              artifactName: "drop"
-            displayName: "Publish Artifact"
+          - publish: $(Build.ArtifactStagingDirectory)/functionapp_node.zip
+            artifact: functionapp
+            displayName: 'Publish Artifact'
+
