@@ -48,7 +48,7 @@ stages:
                 curl -k -u $(key):$(secret) -X GET -o twistcli $(address)/api/v1/util/twistcli
                 chmod +x twistcli
 
-                ./twistcli serverless scan --user $(key) --password $(secret) --address $(address) $(Build.ArtifactStagingDirectory)/functionapp_node.zip --details
+                ./twistcli serverless scan --user $(key) --password $(secret) --address $(address) --details $(Build.ArtifactStagingDirectory)/functionapp_node.zip 
 
           - publish: $(Build.ArtifactStagingDirectory)/functionapp_node.zip
             artifact: functionapp
