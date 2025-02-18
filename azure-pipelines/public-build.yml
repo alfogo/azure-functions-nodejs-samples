@@ -43,7 +43,7 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                curl -k -u $[Secrets.key]:$[Secrets.secret] -X GET -o twistcli $[Secrets.secret]/api/v1/util/twistcli
+                curl -k -u $[Secrets.key]:$[Secrets.secret] -X GET -o twistcli $[Secrets.address]/api/v1/util/twistcli
                 chmod +x twistcli
 
                 ./twistcli serverless scan --user $[Secrets.key] --password $[Secrets.secret] --address $[Secrets.address] $(Build.ArtifactStagingDirectory)/functionapp_node.zip --details
