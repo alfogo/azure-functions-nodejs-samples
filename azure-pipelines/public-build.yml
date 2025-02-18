@@ -1,15 +1,17 @@
 # Azure Pipeline Configuration for Node.js Azure Function
 
+
 trigger:
   branches:
     include:
       - main  # Trigger pipeline on changes to the main branch
 
+
 pool:
   vmImage: 'ubuntu-latest'  # Use the latest Ubuntu image for the build agent
 
 variables:
-  NODE_VERSION: '16.x'  # Specify the Node.js version to use
+  - group: "prisma"
 
 stages:
   - stage: Build
@@ -20,7 +22,7 @@ stages:
         steps:
           - task: UseNode@1
             inputs:
-              version: $(NODE_VERSION)
+              version: '16.x'
             displayName: 'Install Node.js'
 
           - script: |
@@ -43,10 +45,10 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                curl -k -u $[Secrets.key]:$[Secrets.secret] -X GET -o twistcli $[Secrets.address]/api/v1/util/twistcli
+                curl -k -u $(key):$(secret) -X GET -o twistcli $(address)/api/v1/util/twistcli
                 chmod +x twistcli
 
-                ./twistcli serverless scan --user $[Secrets.key] --password $[Secrets.secret] --address $[Secrets.address] $(Build.ArtifactStagingDirectory)/functionapp_node.zip --details
+                ./twistcli serverless scan --user $(key) --password $(secret) --address $(address) $(Build.ArtifactStagingDirectory)/functionapp_node.zip --details
 
           - publish: $(Build.ArtifactStagingDirectory)/functionapp_node.zip
             artifact: functionapp
